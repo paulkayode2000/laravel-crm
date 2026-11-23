@@ -24,10 +24,18 @@ class Installer
     /**
      * After Krayin is successfully installed
      *
+     * The call is skipped entirely unless telemetry is enabled, see
+     * config/telemetry.php. The listener stays registered either way so that
+     * enabling the flag does not require touching the service provider.
+     *
      * @return void
      */
     public function installed()
     {
+        if (! config('telemetry.enabled')) {
+            return;
+        }
+
         $user = $this->userRepository->first();
 
         $httpClient = new Client;

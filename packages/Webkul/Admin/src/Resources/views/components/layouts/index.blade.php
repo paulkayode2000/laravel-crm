@@ -63,16 +63,11 @@
         vite()->set(['src/Resources/assets/css/app.css', 'src/Resources/assets/js/app.js'])
     }}
 
+    {{-- Inter is self-hosted (latin + latin-ext), see public/vendored/README.md. --}}
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
+        href="{{ asset('vendored/fonts/inter.css') }}"
         rel="stylesheet"
     />
-
-    <link
-        rel="preload"
-        as="image"
-        href="{{ url('cache/logo/bagisto.png') }}"
-    >
 
     @if ($favicon = core()->getConfigData('general.general.admin_logo.favicon_image'))
         <link

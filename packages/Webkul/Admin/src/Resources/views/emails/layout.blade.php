@@ -4,12 +4,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        {{--
+            No web font stylesheet here on purpose: it would make every recipient's mail
+            client call out to fonts.googleapis.com, and it never had an effect anyway
+            because `font-family: inter` is not a valid family name. The stack below is
+            what mail clients were already falling back to.
+        --}}
     </head>
 
-    <body style="font-family: inter;">
+    <body style="font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;">
         <div style="max-width: 640px; margin-left: auto; margin-right: auto;">
             <div style="padding: 30px;">
                 <!-- Email Header -->

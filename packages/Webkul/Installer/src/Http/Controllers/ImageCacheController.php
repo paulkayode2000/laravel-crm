@@ -19,9 +19,18 @@ class ImageCacheController
     /**
      * Logo
      *
+     * Only downloaded when telemetry is enabled, see config/telemetry.php.
+     *
      * @var string
      */
     const KRAYIN_LOGO = 'https://updates.krayincrm.com/krayin.png';
+
+    /**
+     * Logo shipped with the admin package, served when telemetry is disabled
+     *
+     * @var string
+     */
+    const LOCAL_LOGO = 'packages/Webkul/Admin/src/Resources/assets/images/logo.svg';
 
     /**
      * Get HTTP response of template applied image file
@@ -31,8 +40,16 @@ class ImageCacheController
      */
     public function getImage($filename)
     {
+        $telemetryEnabled = (bool) config('telemetry.enabled');
+
+        $cacheKey = 'krayin-logo-'.($telemetryEnabled ? 'remote' : 'local');
+
         try {
-            $content = Cache::remember('krayin-logo', 10080, function () {
+            $content = Cache::remember($cacheKey, 10080, function () use ($telemetryEnabled) {
+                if (! $telemetryEnabled) {
+                    return $this->getLocalLogo();
+                }
+
                 return $this->getImageFromUrl(self::KRAYIN_LOGO);
             });
         } catch (\Exception $e) {
@@ -40,6 +57,24 @@ class ImageCacheController
         }
 
         return $this->buildResponse($content);
+    }
+
+    /**
+     * Read the bundled logo, so the route never needs an outbound request.
+     *
+     * @return string
+     */
+    public function getLocalLogo()
+    {
+        $path = base_path(self::LOCAL_LOGO);
+
+        if (! is_file($path)) {
+            throw new \Exception(
+                'Unable to read the local logo ('.$path.').'
+            );
+        }
+
+        return file_get_contents($path);
     }
 
     /**

@@ -81,6 +81,60 @@ Notes:
 * **Mail** is not seeded: Krayin syncs e-mails from a real mailbox, so the Mail
   module stays empty until IMAP/SMTP is configured under Settings > Configuration.
 
+## Third-party calls
+
+This checkout is hardened so that loading a page never leaves the machine. Every
+asset that used to come from a CDN or from Google Fonts is served from
+`public/vendored/`, and both installer call-outs are off. Details and hashes are
+in `public/vendored/README.md`.
+
+| What | Before | Now |
+| --- | --- | --- |
+| Inter webfont | `fonts.googleapis.com` + `fonts.gstatic.com` | `public/vendored/fonts/` (latin + latin-ext `woff2`) |
+| Poppins, DM Serif Display | `fonts.googleapis.com` on login, installer and web form pages | removed - no stylesheet ever applied either family |
+| TinyMCE 6.6.2 (quick create, e-mail editor) | `cdnjs.cloudflare.com` | `public/vendored/tinymce/` |
+| CodeMirror 5.30 (webhook payload editor) | `cdnjs.cloudflare.com` | `public/vendored/codemirror/` |
+| `chartjs-chart-funnel` 4.2.1 (dashboard funnel) | `cdn.jsdelivr.net` | `public/vendored/chartjs-chart-funnel/` |
+| flatpickr dark theme | `npmcdn.com`, only when dark mode is on | `public/vendored/flatpickr/themes/` |
+| Install telemetry | `POST updates.krayincrm.com/api/updates` on `krayin.installed` | skipped, see below |
+| Installer logo route | `GET updates.krayincrm.com/krayin.png` via `/cache/{filename}` | bundled `logo.svg`; the admin layout no longer preloads that route |
+
+### Telemetry switch
+
+`config/telemetry.php` gates the only server-side outbound requests:
+
+```php
+'enabled' => env('KRAYIN_TELEMETRY_ENABLED', false),
+```
+
+It defaults to **off**, so the `krayin.installed` listener returns immediately and
+`/cache/{filename}` serves the logo that ships with the admin package. Setting
+`KRAYIN_TELEMETRY_ENABLED=true` in `.env` restores the upstream behaviour (the
+POST contains the app URL, the first administrator's name and e-mail and the
+default country). The listener stays registered in the service provider either
+way, so the switch needs no code change.
+
+Because the flag is data driven, a fresh clone does not need a pre-created
+`storage/installed` marker to stay silent: the first request after installation
+may still fire `krayin.installed`, but the listener does nothing.
+
+### Integrations that stay dormant
+
+Nothing else is configured to phone home, and the audit that established this is
+reproducible: mail uses the `mailhog:1025` placeholder, `BROADCAST_DRIVER=log`
+(so no `Echo`/Pusher client is even rendered), `QUEUE_CONNECTION=sync`, the
+webhook table starts empty, Google Contacts has no client ID and the AI service
+has no OpenRouter key.
+
+### The compiled bundles
+
+The flatpickr theme URL lives inside the Vite output as well as in the source, so
+`public/admin/build/assets/app-3HMmX12V.js` and
+`public/webform/build/assets/app-Di8tgz7D.js` are patched in place (one string,
+`https://npmcdn.com/flatpickr/dist/themes/` -> `/vendored/flatpickr/themes/`).
+`npm run build` in `packages/Webkul/Admin` or `packages/Webkul/WebForm` regenerates
+them from the already-patched source, so a future rebuild keeps the local path.
+
 ## What is isolated
 
 | Concern | Location |

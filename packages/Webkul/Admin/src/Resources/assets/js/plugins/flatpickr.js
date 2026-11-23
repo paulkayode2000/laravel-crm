@@ -39,7 +39,9 @@ export default {
 
             linkElement.rel = "stylesheet";
             linkElement.type = "text/css";
-            linkElement.href = `https://npmcdn.com/flatpickr/dist/themes/${theme}.css`;
+            // Themes are self-hosted in public/vendored/flatpickr/themes so that switching
+            // to the dark theme never contacts npmcdn.com.
+            linkElement.href = `/vendored/flatpickr/themes/${theme}.css`;
             linkElement.id = 'flatpickr';
 
             document.head.appendChild(linkElement);

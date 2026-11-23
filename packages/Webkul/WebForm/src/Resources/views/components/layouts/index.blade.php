@@ -35,15 +35,10 @@
         vite()->set(['src/Resources/assets/css/app.css', 'src/Resources/assets/js/app.js'], 'webform')
     }}
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    />
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap"
-        rel="stylesheet"
-    />
+    {{--
+        Poppins and DM Serif Display were fetched from Google Fonts here but never applied
+        by the web form stylesheets, so they are dropped rather than self-hosted.
+    --}}
 
     @if ($favicon = core()->getConfigData('general.general.admin_logo.favicon_image'))
         <link

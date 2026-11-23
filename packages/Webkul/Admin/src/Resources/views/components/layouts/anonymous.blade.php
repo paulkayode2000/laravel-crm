@@ -38,15 +38,12 @@
         vite()->set(['src/Resources/assets/css/app.css', 'src/Resources/assets/js/app.js'])
     }}
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    />
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap"
-        rel="stylesheet"
-    />
+    {{--
+        Poppins and DM Serif Display used to be loaded from Google Fonts on this layout,
+        but no stylesheet on the anonymous pages ever applied either family, so the
+        request was pure overhead. Text keeps using the system font stack, exactly as it
+        rendered before.
+    --}}
 
     @if ($favicon = core()->getConfigData('general.design.admin_logo.favicon'))
         <link

@@ -4,14 +4,13 @@
 
 @pushOnce('scripts')
     <!--
-        TODO (@devansh-webkul): Only this portion is pending; it just needs to be integrated using the Vite bundler. Currently,
-        there is an issue with relative paths in the plugins. I intend to address this task at the end.
+        TinyMCE is self-hosted in public/vendored/tinymce, so opening the editor never
+        contacts cdnjs.cloudflare.com. TinyMCE resolves its theme, plugins, skins,
+        icons and content CSS relative to this script's own location, which is why the
+        copy under public/vendored/tinymce keeps the upstream directory layout.
     -->
     <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.6.2/tinymce.min.js"
-        integrity="sha384-NjD7Hj+XpRBVk0A/j+d7Kh0xbyxAq95RK6cAaDiV4U04K8h8paDAQFpsXJzt7ZwC"
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"
+        src="{{ asset('vendored/tinymce/tinymce.min.js') }}"
     ></script>
 
     <script

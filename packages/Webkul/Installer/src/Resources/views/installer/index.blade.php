@@ -17,13 +17,9 @@
             vite()->set(['src/Resources/assets/css/app.css', 'src/Resources/assets/js/app.js'], 'installer')
         }}
 
+        {{-- Inter is self-hosted, see public/vendored/README.md. --}}
         <link
-            href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
-            rel="stylesheet"
-        />
-
-        <link
-            href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap"
+            href="{{ asset('vendored/fonts/inter.css') }}"
             rel="stylesheet"
         />
 
