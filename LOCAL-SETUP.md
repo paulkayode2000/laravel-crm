@@ -7,6 +7,7 @@ No machine-wide PHP, MySQL, Composer or service configuration was modified.
 | --- | --- |
 | App URL | http://127.0.0.1:8000 |
 | Admin URL | http://127.0.0.1:8000/admin/login |
+| Repository | https://github.com/paulkayode2000/crm (`2.2`, `main`; private) |
 | Fork | https://github.com/paulkayode2000/laravel-crm (`origin`, branch `2.2`) |
 | Upstream | https://github.com/krayin/laravel-crm (`upstream`) |
 
@@ -89,29 +90,63 @@ Notes:
 | Composer home/cache | `.\.tools\composer` |
 | MySQL data directory | `.\.tools\mysql\data` |
 | MySQL config | `.\.tools\mysql\my.ini` |
+| MySQL database/user bootstrap | `.\.tools\mysql\init-db.sql` |
 | Logs | `.\.tools\logs` |
-| Scripts | `.\.tools\scripts` |
+| Start/stop scripts (committed) | `.\start-local.ps1`, `.\stop-local.ps1` |
 
-`.tools/`, `composer.phar`, `php.ini`, `storage/installed` are listed in
-`.git/info/exclude`, so `git status` stays clean without touching `.gitignore`.
+`.tools/`, `composer.phar`, `php.ini` and `storage/installed` are listed in
+`.git/info/exclude`: they are machine-local binaries/state and stay out of the
+repository, so `git status` stays clean without touching `.gitignore`.
+Everything needed to boot the app (`start-local.ps1`, `stop-local.ps1`,
+`config/demo.php`, the demo seeders, this document) is committed.
 
 ## Start / stop
 
 ```powershell
-# Start MySQL (3307) + PHP dev server (8000) together
+# MySQL (3307) + PHP dev server (8000) in one step
 powershell -ExecutionPolicy Bypass -File .\start-local.ps1
 
-# Individual pieces
-powershell -ExecutionPolicy Bypass -File .\.tools\scripts\start-mysql.ps1
-powershell -ExecutionPolicy Bypass -File .\.tools\scripts\stop-mysql.ps1
+# Stop both again
+powershell -ExecutionPolicy Bypass -File .\stop-local.ps1
 ```
 
-`start-local.ps1` sets `PHPRC` to the project `php.ini` and runs
-`php artisan serve --host=127.0.0.1 --port=8000`. Stop the web server with
-`Ctrl+C`; stop the database with `stop-mysql.ps1`.
+`start-local.ps1` is repository-owned and self-describing (`Get-Help
+.\start-local.ps1 -Detailed`). It:
+
+1. points `PHPRC` at the project `php.ini` (enables `intl`, 512M memory, 20M
+   uploads) so no machine-wide PHP config is used;
+2. starts the local MySQL instance from `.tools\mysql\my.ini` when that file and
+   a `mysqld.exe` exist, otherwise it assumes the database in `.env` is already
+   reachable;
+3. runs `php artisan serve --host=127.0.0.1 --port=8000`.
+
+Useful switches: `-Port 8080`, `-MysqlPort 3308`, `-SkipDatabase`,
+`-MysqlBin 'C:\path\to\mysql\bin'`, `-MysqlConfig 'C:\path\to\my.ini'`.
 
 The MySQL instance runs as a normal user process (no Windows service, no admin
 rights), so start it with the script after a reboot.
+
+## Fresh clone quickstart
+
+The repository contains the application, the compiled admin assets and the demo
+seeders; only `.env`, `vendor/` and the local MySQL data are generated.
+
+```powershell
+git clone https://github.com/paulkayode2000/crm.git
+cd crm
+
+Copy-Item .env.example .env
+# set DB_HOST / DB_PORT / DB_DATABASE / DB_USERNAME / DB_PASSWORD for your MySQL
+
+php composer.phar install          # or: composer install
+php artisan key:generate
+php artisan migrate --seed         # Krayin base data
+php artisan db:seed --class=Database\Seeders\LocalDemoDataSeeder
+
+powershell -ExecutionPolicy Bypass -File .\start-local.ps1
+```
+
+Then open http://127.0.0.1:8000/admin/login and use one of the demo buttons.
 
 ## How it was installed
 
