@@ -100,6 +100,56 @@
 
                 {!! view_render_event('admin.sessions.login.form_controls.after') !!}
             </div>
+
+            @if (config('demo.enabled') && count(config('demo.accounts', [])))
+                <!-- Local demo accounts: one click signs in with seeded data -->
+                <div class="box-shadow min-w-[300px] rounded-md bg-white p-4 dark:bg-gray-900">
+                    <p class="text-sm font-semibold text-gray-800 dark:text-white">
+                        Local demo accounts
+                    </p>
+
+                    <p class="pb-3 text-xs text-gray-600 dark:text-gray-300">
+                        One click signs you in with the data seeded for that role.
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        @foreach (config('demo.accounts') as $account)
+                            <div class="flex flex-col gap-1">
+                                <form
+                                    method="POST"
+                                    action="{{ route('admin.session.store') }}"
+                                >
+                                    @csrf
+
+                                    <input
+                                        type="hidden"
+                                        name="email"
+                                        value="{{ $account['email'] }}"
+                                    />
+
+                                    <input
+                                        type="hidden"
+                                        name="password"
+                                        value="{{ $account['password'] }}"
+                                    />
+
+                                    <button
+                                        type="submit"
+                                        class="secondary-button w-full"
+                                        title="{{ $account['description'] }}"
+                                    >
+                                        {{ $account['label'] }}
+                                    </button>
+                                </form>
+
+                                <p class="text-center text-xs text-gray-600 dark:text-gray-300">
+                                    {{ $account['email'] }}
+                                </p>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
 
         <!-- Powered By -->
